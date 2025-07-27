@@ -1,0 +1,1 @@
+call cmd /k "conda activate ocr && python src/main.py"
