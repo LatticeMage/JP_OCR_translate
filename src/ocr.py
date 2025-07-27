@@ -1,18 +1,24 @@
-# ocr.py
+import easyocr
+import numpy as np
 
+# Initialize EasyOCR reader for Japanese (add other languages as needed)
+reader = easyocr.Reader(['ja'], gpu=False)
 
 def ocr_image_to_text(img) -> str:
     """
-    Runs OCR on the given PIL.Image and returns the recognized text.
+    Runs OCR on the given PIL.Image (or numpy array) and returns the recognized text.
     Also writes it to now.txt for compatibility with your old flow.
     """
-    import random
+    # Convert PIL.Image to NumPy array if needed
+    if not isinstance(img, np.ndarray):
+        img_array = np.array(img)
+    else:
+        img_array = img
 
-    # Generate a random number (e.g., between 1 and 100)
-    random_number = random.randint(1, 100)
+    # Perform OCR (detail=0 returns plain text lines)
+    results = reader.readtext(img_array, detail=0)
 
-    # Convert to string
-    random_string = str(random_number)
-    text = "test" + random_string
+    # Combine lines into single text block
+    text = "\n".join(results)
 
     return text
