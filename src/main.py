@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import Qt
 from rect import RecordingOverlay
+from rect_config import RectConfigWindow # NEW: Import the config window
 from capture import capture_region
 from ocr import ocr_image_to_text
 from google_trans import translate_text
@@ -40,6 +41,14 @@ class ControlWindow(QWidget):
 
         layout.addStretch()
 
+        # 4) Rect Config button
+        self.rect_config_btn = QPushButton("Rect Config", self)
+        self.rect_config_btn.clicked.connect(self.on_rect_config)
+        layout.addWidget(self.rect_config_btn)
+
+        # Keep a reference to the config window to prevent it from being garbage collected
+        self.rect_config_window = None
+
     def on_translate(self):
         # grab overlay region
         geom = self.overlay.geometry()
@@ -64,7 +73,20 @@ class ControlWindow(QWidget):
         self.jp_text_edit.setPlainText(jp_text)
         self.zh_text_edit.setPlainText(zh_text)
 
+    # NEW: Method to open the Rect Config window
+    def on_rect_config(self):
+        if self.rect_config_window is None:
+            self.rect_config_window = RectConfigWindow(self.overlay)
+        self.rect_config_window.show()
+        # Bring the window to the front if it's already open
+        self.rect_config_window.activateWindow()
+        self.rect_config_window.raise_()
+    # END NEW
+
     def closeEvent(self, event):
+        # Ensure the config window is also closed if it's open
+        if self.rect_config_window:
+            self.rect_config_window.close()
         QApplication.quit()
 
 

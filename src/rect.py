@@ -11,10 +11,15 @@ class RecordingOverlay(QWidget):
     - Drag the bottom-right corner to resize
     - Press Esc to quit
     """
-    RESIZE_MARGIN = 10
+    # RESIZE_MARGIN is now an instance attribute, not a class constant
 
     def __init__(self):
         super().__init__()
+
+        # --- Configurable attributes with default values ---
+        self._rect_color = QColor(255, 0, 0, 255) # Default Red, fully opaque (RGBA)
+        self._resize_margin = 10 # Default margin for resize handle
+        # --- End configurable attributes ---
 
         # Default geometry
         self._rect_x = 200
@@ -43,10 +48,34 @@ class RecordingOverlay(QWidget):
         self._drag_start = QPoint()
         self._orig_geom = QRect()
 
+    # --- Properties for rect_color and resize_margin ---
+    @property
+    def rect_color(self):
+        return self._rect_color
+
+    @rect_color.setter
+    def rect_color(self, color: QColor):
+        if isinstance(color, QColor) and self._rect_color != color:
+            self._rect_color = color
+            self.update() # Trigger a repaint
+
+    @property
+    def resize_margin(self):
+        return self._resize_margin
+
+    @resize_margin.setter
+    def resize_margin(self, margin: int):
+        if isinstance(margin, int) and margin > 0 and self._resize_margin != margin:
+            self._resize_margin = margin
+            # No update() needed here as margin affects mouse interaction, not direct drawing
+
+    # --- End properties ---
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        pen = QPen(QColor(255, 0, 0))
+        # Use the configurable rect_color
+        pen = QPen(self._rect_color)
         pen.setWidth(3)
         pen.setJoinStyle(Qt.PenJoinStyle.RoundJoin)
         painter.setPen(pen)
@@ -69,8 +98,9 @@ class RecordingOverlay(QWidget):
             self._orig_geom = self.geometry()
             local = event.pos()
             if (
-                self.width() - local.x() <= self.RESIZE_MARGIN and
-                self.height() - local.y() <= self.RESIZE_MARGIN
+                # Use the configurable resize_margin
+                self.width() - local.x() <= self.resize_margin and
+                self.height() - local.y() <= self.resize_margin
             ):
                 self._resizing = True
             else:
@@ -84,8 +114,9 @@ class RecordingOverlay(QWidget):
         if not (self._dragging or self._resizing):
             local = event.pos()
             if (
-                self.width() - local.x() <= self.RESIZE_MARGIN and
-                self.height() - local.y() <= self.RESIZE_MARGIN
+                # Use the configurable resize_margin
+                self.width() - local.x() <= self.resize_margin and
+                self.height() - local.y() <= self.resize_margin
             ):
                 self.setCursor(Qt.CursorShape.SizeFDiagCursor)
             else:
