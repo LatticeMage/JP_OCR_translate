@@ -19,8 +19,8 @@ class RecordingOverlay(QWidget):
         # Default geometry
         self._rect_x = 200
         self._rect_y = 200
-        self._rect_width = 800
-        self._rect_height = 600
+        self._rect_width = 550
+        self._rect_height = 400
         self.setGeometry(self._rect_x, self._rect_y, self._rect_width, self._rect_height)
 
         # Window flags
